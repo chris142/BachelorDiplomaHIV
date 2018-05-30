@@ -1,0 +1,625 @@
+\documentclass[10pt]{beamer}
+\usepackage[cp1251]{inputenc}
+\usepackage[russian]{babel}
+
+
+
+%Tikz Pictures
+\usepackage{tikz}
+\usetikzlibrary{arrows,decorations.pathmorphing,backgrounds,positioning,fit,petri}
+\usetikzlibrary{arrows,shapes,backgrounds,calc,positioning}
+\usetikzlibrary{mindmap}
+\graphicspath{{images/}}
+
+\usepackage{smartdiagram}
+\usesmartdiagramlibrary{additions}
+
+% UTF-8 encoding
+
+\setbeamertemplate{navigation symbols}{}
+
+\definecolor{Terracotta}{cmyk}{0.08, 0.91, 0.92, 0.33}
+\definecolor{Gray}{cmyk}{0.21, 0.11, 0.09, 0.22}
+\definecolor{Black}{cmyk}{1, 1, 1, 1}
+\definecolor{White}{cmyk}{0, 0, 0, 0}
+
+\usetheme{CambridgeUS}
+\setbeamercolor{title}{fg=Black,bg=}
+\setbeamercolor{author}{fg=Black}
+\setbeamercolor{institute}{fg=Black}
+\setbeamercolor{frametitle}{fg=Terracotta}
+\setbeamercolor{framesubtitle}{fg=Terracotta}
+\setbeamercolor{date}{fg=Black}
+
+\newcommand{\namesigdate}[2][5cm]{%
+	\begin{tabular}{@{}p{#1}@{}}
+		#2 \\[2\normalbaselineskip] \hrule \\[15pt]
+	\end{tabular}}
+	
+	
+	%%% лучше не трогать
+	\setbeamertemplate{title page}
+	{
+		\begin{centering}
+			\begin{beamercolorbox}[sep=10pt,center]{institute}
+				\usebeamerfont{institute}\insertinstitute
+			\end{beamercolorbox}
+			\begin{beamercolorbox}[sep=10pt,center]{title}
+				\usebeamerfont{title}\inserttitle\par
+			\end{beamercolorbox}
+			\vskip0.5em\par	
+		\end{centering}
+		\begin{flushleft}
+			\begin{beamercolorbox}[sep=10pt]{author}
+				\usebeamerfont{author}\insertauthor
+			\end{beamercolorbox}
+		\end{flushleft}
+		\begin{beamercolorbox}[sep=10pt,center]{date}
+			\usebeamerfont{date}\insertdate
+		\end{beamercolorbox}
+	}
+	
+	%%% лучше не трогать
+	\setbeamertemplate{frametitle}
+	{
+		\begin{flushright}
+			\textbf{ \insertframetitle} \\ \insertframesubtitle
+		\end{flushright}
+	}
+	
+	\institute{\vskip20pt САНКТ-ПЕТЕРБУРГСКИЙ ГОСУДАРСТВЕННЫЙ УНИВЕРСИТЕТ \\ Факультет Прикладной математики -- Процессов управления}
+	
+	\title{\textbf{Об исследовании доли ВИЧ-инфицированных среди некоторых групп населения}}
+		
+	\author[Зуенок К.\:В.]{\textbf{Подготовила:} \hfill студентка гр. 14.Б11-пу, Зуенок К.\:В. \\
+		\textit{Заведующий кафедрой:} \hfill д. ф.-м. наук, профессор Петросян Л.\:А. \\
+		\textit{Научный руководитель:} \hfill д. ф.-м. наук, доцент Громова Е.\:В. \\
+		}
+	
+	\date{\textbf{Санкт-Петербург, 2018}}
+	
+	%%% лучше не трогать
+	\makeatother
+	\setbeamertemplate{footline}
+	{%
+		\leavevmode%
+		\hbox{
+			\begin{beamercolorbox}[wd=\paperwidth,ht=2.5ex,dp=1.125ex,leftskip=.3cm,rightskip=.3cm plus1fil]{author in head/foot}%
+				\usebeamerfont{title head/foot}
+				\hfill\insertframenumber / \inserttotalframenumber
+		\end{beamercolorbox}}%
+		\vskip0pt%
+	}
+	\setbeamertemplate{headline}{}
+	\makeatletter
+	
+\begin{document}
+	
+	\usebackgroundtemplate{\includegraphics[height=\paperheight,width=\paperwidth]{SPbU_bg_titlepage.png}}	
+	\begin{frame}
+		\titlepage
+	\end{frame}
+		
+	\usebackgroundtemplate{\includegraphics[height=\paperheight,width=\paperwidth]{SPbU_bg.png}}		
+	
+	\begin{frame}
+	\frametitle{Введение}
+	Проблемы глобального здравоохранения: \\	
+	\begin{itemize}
+		\item<1-> Сбор информации
+		\item<1-> Анализ информации
+		\item<1-> Реализация программ лечения и профилактики
+	\end{itemize}
+	\end{frame}
+	
+	\begin{frame}
+	\frametitle{Постановка задачи}
+	Дана популяция $P$, имеющая размер $N = |P|$, выборка $S$ объемом $N_S = |P|$ с нарушенным условием репрезентативности, $S \subset P$. \\
+	
+	Необходимо: \\
+	
+		\begin{itemize}
+		\item<1-> Разделить рассматриваемое население $P$ на возможные категории: $S_{(\cdot)}$, $I_{(\cdot \cdot)}$.
+		\item<1-> Сформулировать математическую модель.
+		\item<1-> Оценить доли здоровых $s_{(\cdot)}$ и ВИЧ-инфицированных $i_{(\cdot \cdot)}$ индивидов.
+		\item<1-> Оценить количество людей в различных состояниях $S_{(\cdot)}$, $I_{(\cdot \cdot)}$ для всей популяции $P$.
+		\item<1-> Осуществить программную реализацию модели.
+		\end{itemize}
+	
+	\end{frame}
+	
+	\begin{frame}
+	\frametitle{Математическая модель}
+	\framesubtitle{Демографический баланс}
+	
+	\begin{itemize}
+		\item<1-> Все население делится на несколько групп
+		\item<1-> Все индивиды в группе считаются одинаковыми
+		\item<1-> Существуют переходы между группами, входной поток и выходной 
+	\end{itemize}
+	Динамика i-й группы описывается следующим уравнением: \\
+	
+	\begin{equation} \label{eqfirst}
+	\dot{X_i} = \sum_{i \neq j} (\alpha_{ij}(X) - \alpha_{ji}(X)) - \alpha_{ii}(X) + \omega_i, \notag
+	\end{equation}
+	
+	где \\
+	$X_i$ - количество человек в $i$-ой группе, \\
+	$\alpha_{ij}(X)$ - скорость перехода из группы $i$ в группу $j$, \\
+	$\alpha_{ii}(X)$ - отток из $i$-й группы, $\omega_i$ - приток в $i$-ю группу. \\
+	
+	Предполагается, что выполнены следующие условия:
+	
+	A1. $\alpha_{ij}(X) \geq 0$ и $\omega_i(X) \geq 0$ для всех $i$, $j$.
+	
+	A2. Из $X_i = 0$ следует  $\alpha_{ij}(X)$ и $\alpha_{ii}(X) = 0$.
+	\end{frame}
+	
+	\begin{frame}
+	\frametitle{Математическая модель}
+	\framesubtitle{Простейшая модель распространения инфекции}	
+	
+	Вся популяция - три категории:
+	\begin{figure}
+		
+		\def\shownum{0}
+		\center
+		
+		\begin{tikzpicture} [node distance=2cm]
+		
+		\begin{scope}
+		
+		\node (X_H) {};
+		
+		\node (S_H) [right of= X_H] {$S$};
+		
+		\node (I_AH) [right of= S_H] {$I_{A}$};
+		
+		\node (I_CH) [right of= I_AH] {$I_{C}$};
+		
+		\node (P) [below of= S_H] {};
+		
+		\node (top_left_H) at ($(S_H) + (-15mm,10mm)$) {};
+		
+		\node (bottom_right_H) at ($(S_H |- P) + (76mm,13mm)$) {};
+		
+		
+		\draw [->] (X_H) to node[above=1pt] {$\alpha$} (S_H);
+		
+		\draw [->] (S_H) to node[above=1pt] {$\phi(X)$} (I_AH);
+		
+		\draw [->] (I_AH) to node[above=1pt] {$\delta_A$} node[below=1pt] {} (I_CH);
+		
+		\end{scope}
+		
+		
+		\begin{scope}[yshift=-2cm]			%отступ вниз для L
+		
+		\node (X_L) {};
+		
+		\node (S_L) [right of= X_L] {};
+		
+		\node (I_AL) [right of= S_L] {};
+		
+		\node (I_CL) [right of= I_AL] {};
+		
+		\node (top_left_L) at ($(S_L) + (-15mm,15mm)$) {};
+		
+		\node (bottom_right_L) at ($(S_L) + (76mm,-7mm)$) {};
+		
+		\end{scope}
+		
+		\node (top_left) at ($(top_left_H) + (-3mm,3mm)$) {};
+		
+		\node (bottom_right) at ($(bottom_right_L) + (3mm,-3mm)$) {};
+		
+		\node (dummy) at ($0.3*(bottom_right_H) + 0.5*(top_left_L)$) {};
+		
+		\node (D) at ($(I_CH |- dummy) + (25mm,-2mm)$) {};
+		
+		\draw [->] (I_CH) to node[left=1pt] {$\mu + \delta_C$} node[right=1pt] {} (I_CL);
+		
+		\draw [->] (I_AH) to node[left=1pt] {$\mu$} node[right=1pt] {} (I_AL);
+		
+		\draw [->] (S_H) to node[left=1pt] {$\mu$} (S_L);
+		
+		
+		\end{tikzpicture}
+		
+	\end{figure}
+	$\alpha$ - входной поток (рождаемость),
+	$\mu$ - выходной поток (смертность), \\
+	$\delta_A$ - продолжительность острой фазы, \\
+	$\phi(X)$ - уровень перехода от острой фазы к хронической (коэффициент заболеваемости).			
+	\end{frame}
+	
+	\begin{frame}
+	\frametitle{Математическая модель}
+	\framesubtitle{Простейшая модель распространения инфекции}
+	\begin{gather}
+	\dot{S} = \alpha - (\phi(X) + \mu)S, \notag \\	
+	\dot{I_{A}} = \phi(X)S - (\mu + \delta_A)I_{A}, \notag\\
+	\dot{I_{C}} = \delta_A I_{A} - (\mu + \delta_C)I_{C},\notag
+	\end{gather}
+	
+	где \\
+	$\phi(X) = {{\beta_A I_A + \beta_C I_C}\over{N}}$, \\
+	$X \! = \! \left[S\;\;I_{A}\;\;I_{C}\right]$, \\
+	$N = S + I_A + I_C$, \\
+	$\beta_A$, $\beta_C$ - вероятность заражения за одно взаимодействие для остро и хронически инфицированного соответственно.
+			
+	\end{frame}
+
+	\begin{frame}
+	\frametitle{Математическая модель}
+	\framesubtitle{Модель с оценкой поведения}
+		\begin{figure}[h!]
+			\center{\includegraphics[scale=0.23]{impr1}}
+		\end{figure}
+	\end{frame}
+
+
+	\begin{frame}
+	\frametitle{Математическая модель}
+	\framesubtitle{Модель с оценкой поведения}
+	\begin{figure}[htb]
+		
+		\def\shownum{0}
+		
+		\center
+		
+		\begin{tikzpicture} [node distance=2.5cm]
+		
+		\begin{scope}
+		
+		\node (X_H) {};
+		
+		\node (S_H) [right of= X_H] {$S_H$};
+		
+		\node (I_AH) [right of= S_H] {$I_{AH}$};
+		
+		\node (I_CH) [right of= I_AH] {$I_{CH}$};
+		
+		\node (P) [below of= S_H] {};
+		
+		\node (top_left_H) at ($(S_H) + (-15mm,10mm)$) {};
+		
+		\node (bottom_right_H) at ($(S_H |- P) + (76mm,13mm)$) {};
+		
+		
+		\draw [->] (X_H) to node[above=1pt] {$\alpha_H$} (S_H);
+		
+		\draw [->] (S_H) to node[above=1pt] {$\phi_H$} (I_AH);
+		
+		\draw [->] (I_AH) to node[above=1pt] {$\delta_A$} node[below=1pt] {} (I_CH);
+		
+		\end{scope}
+		
+		
+		
+		\begin{scope}[yshift=-5cm]
+		
+		\node (X_L) {};
+		
+		\node (S_L) [right of= X_L] {$S_L$};
+		
+		\node (I_AL) [right of= S_L] {$I_{AL}$};
+		
+		\node (I_CL) [right of= I_AL] {$I_{CL}$};
+		
+		\node (top_left_L) at ($(S_L) + (-15mm,15mm)$) {};
+		
+		\node (bottom_right_L) at ($(S_L) + (76mm,-7mm)$) {};
+		
+		
+		\draw [->] (X_L) to node[above=1pt] {$\alpha_L$} (S_L);
+		
+		\draw [->] (S_L) to node[above=1pt] {$\phi_L$} (I_AL);
+		
+		\draw [->] (I_AL) to node[above=1pt] {$\delta_A$} node[below=1pt] {} (I_CL);
+		
+		\draw [->] (S_H) to [bend left=15] node[right=1pt] {$\rho_H$} (S_L);
+		
+		\draw [->] (S_L) to [bend left=15] node[left=1pt] {$\rho_L$} (S_H);
+		
+		\end{scope}
+		
+		
+		\node (top_left) at ($(top_left_H) + (-3mm,3mm)$) {};
+		
+		\node (bottom_right) at ($(bottom_right_L) + (3mm,-3mm)$) {};
+		
+		\node (dummy) at ($0.3*(bottom_right_H) + 0.5*(top_left_L)$) {};
+		
+		\node (D) at ($(I_CH |- dummy) + (25mm,-2mm)$) {$D$};
+		
+		
+		\draw [->] (I_CH) to node[left=1pt] {$\delta_C$} node[right=1pt] {} (D);
+		
+		\draw [->] (I_CL) to node[left=1pt] {$\delta_C$} node[right=1pt] {} (D);
+		
+		
+		\draw [->] (I_AH) to [bend left=10] node[right=1pt] {$\rho_H$} (I_AL);
+		\draw [->] (I_AL) to [bend left=10] node[left=1pt] {$\rho_L$} (I_AH);
+		
+		\draw [->] (I_CH) to [bend left=10] node[right=1pt] {$\rho_H$} (I_CL);
+		\draw [->] (I_CL) to [bend left=10] node[left=1pt] {$\rho_L$} (I_CH);
+		
+		\draw [->] ($0.5*(bottom_right_H) + 0.5*(bottom_right_L) + (8mm,11mm)$) to node[above=1pt] {$\mu$} node[below=1pt] {} ($0.5*(bottom_right_H) + 0.5*(bottom_right_L) + (22mm,11mm)$);
+		
+		
+		
+		\begin{pgfonlayer}{background}
+		
+		
+		\filldraw [line width=2mm,join=round,black!10]
+		
+		(top_left.north -| bottom_right.east) rectangle (bottom_right.south -| top_left.west);
+		
+		\filldraw [line width=2mm,join=round,black!20]
+		
+		(top_left_H.north -| bottom_right_H.east) rectangle (bottom_right_H.south -| top_left_H.west)
+		
+		
+		(top_left_L.north -| bottom_right_L.east) rectangle (bottom_right_L.south -| top_left_L.west);
+		
+		\end{pgfonlayer}
+		
+		
+		
+		\end{tikzpicture}
+		
+		\caption{Динамика системы. В верхнем темно-сером блоке показаны все высокорисковые состояния, в нижнем - все состояния с низким уровнем риска. Переменные на стрелках являются относительными скоростями перехода между ними. Существуют переходы между высоким и низким рисками в обоих направлениях для здоровых и инфицированных людей на любой стадии болезни. Отток $\mu$ одинаково относится ко всем группам.}
+		
+		\label{fig:dynamics}
+		
+	\end{figure}		
+	\end{frame}
+	
+	\begin{frame}
+	\frametitle{Математическая модель}
+	\framesubtitle{Модель с оценкой поведения}
+	
+	\begin{gather}
+	\dot{S_H} = \alpha_H - (\phi_H(X) + \rho_H + \mu)S_H + \rho_L S_{L,} \notag \\	
+	\dot{S_L} = \alpha_L - (\phi_L(X) + \rho_L + \mu)S_L + \rho_H S_{H,}  \notag \\
+	\dot{I_{CH}} = \delta_A I_{AH} - (\rho_H + \mu + \delta_C)I_{CH} + \rho_L I_{CL,} \notag \\
+	\dot{I_{CL}} = \delta_A I_{AL} - (\rho_L + \mu + \delta_C)I_{CL} + \rho_H I_{CH,} \notag \\
+	\dot{I_{AH}} = \phi_H(X)S_H - (\rho_H + \mu + \delta_A)I_{AH} + \rho_L I_{AL,} \notag \\
+	\dot{I_{AL}} = \phi_L(X)S_L - (\rho_L + \mu + \delta_A)I_{AL} + \rho_H I_{AH,} \notag
+	\end{gather}
+	где $X \! = \! \left[I_{CH}\;\;I_{CL}\;\;I_{AH}\;\;I_{AL}\;\;S_H\;\;S_L\right]'$ - вектор переменных состояния, \\
+	$\phi_H(X)$ и $\phi_L(X)$ - коэффициенты заболеваемости,
+	$\delta_A$ - коэффициент перехода заболевания из острой формы в хроническую, \\
+	$\delta_C$ - коэффициент смертности хронически инфицированных из-за СПИДа. \\
+	\end{frame}
+	
+	\begin{frame}
+	\frametitle{Выборка и оценка состояний}
+
+
+	Вероятность, что случайный высокорисковый (низкорисковый соответственно) человек $R$ находится в HRE в случайный момент времени в течение периода отбора:
+	
+	\begin{gather}
+	p_H = P(HRE | R = H), \notag \\
+	p_L = P(HRE | R = L). \notag
+	\end{gather}
+	
+	\end{frame}
+
+	\begin{frame}
+	\frametitle{Выборка и оценка состояний}
+	
+	Вероятность случайного индивида $R$, находящегося в HRE в случайный момент времени, относиться к одному из состояний, соответствующих категории высокого риска, т.е. находиться в $X \in Z_H = \{S_H, I_{AH}, I_{CH}\}$, вычисляется с помощью формулы Байеса:
+	
+	\begin{gather}
+	P(X | HRE)= {{P(HRE | R = H)P(X)}\over{P(HRE | R = H)P(R = H) + P(HRE | R = L)P(R = L)}} \notag \\
+	= {{p_H {{X} \over {N}}} \over {p_H {{N_H} \over {N}} + p_L {{N_L} \over {N}}}} = {{r_b X} \over {r_b N_H + N_L}},\notag 
+	\end{gather}
+	
+	где $N_H = S_H + I_{AH} + I_{CH}, \; N_L = S_L + I_{AL} + I_{CL}, \; N = N_H + N_L$ и $rb = p_H / p_L$.
+	\end{frame}	
+	
+	\begin{frame}
+	\frametitle{Вычисление долей в общей популяции}
+	
+	Пусть $N_S$ - количество индивидов, которые были отобраны во время посещения HRE в единицу времени:
+	
+	\begin{gather}
+	N_S = {\hat{S}_H} + {\hat{S}_L} + {\hat{I}_{AH}} + {\hat{I}_{AL}} + {\hat{I}_{CH}} + {\hat{I}_{CL}}. \notag
+	\end{gather}
+	Обозначим число лиц в соответствующих категориях через $\hat{S}_{(.)}$ и $\hat{I}_{(.)}$. Обозначим известные доли соответствующих групп внутри выборки $\hat{s}_{(.)}$ и $\hat{i}_{(.)}$:
+	
+	\begin{gather}
+	{\hat{s}_H} = {{\hat{S}_H} \over N_S}, \; {\hat{s}_L} = {{\hat{S}_L} \over N_S}, \; {\hat{i}_{AH}} = {{\hat{I}_{AH}} \over N_S}, \; {\hat{i}_{AL}} = {{\hat{I}_{AL}} \over N_S}, \; {\hat{i}_{CH}} = {{\hat{I}_{CH}} \over N_S}, \; {\hat{i}_{CL}} = {{\hat{I}_{CL}} \over N_S}. \notag
+	\end{gather}
+	
+	\end{frame}		
+	
+	
+	\begin{frame}
+	\frametitle{Вычисление долей в общей популяции}
+	\framesubtitle{Случай для 6 групп}	
+	\begin{gather} \label{restr1}
+	\begin{cases}
+	s_H r_b	= \hat{s}_H r_b (s_H + i_{AH} +i_{CH}) + \hat{s}_H(s_L + i_{AL} +i_{CL}), \notag \\
+	s_L	= \hat{s}_L r_b (s_H + i_{AH} +i_{CH}) + \hat{s}_L(s_L + i_{AL} +i_{CL}), \notag \\
+	i_{AH} r_b	= \hat{i}_{AH} r_b (s_H + i_{AH} +i_{CH}) + \hat{i}_{AH}(s_L + i_{AL} +i_{CL}),  \\
+	i_{AL} = \hat{i}_{AL} r_b (s_H + i_{AH} +i_{CH}) + \hat{i}_{AL}(s_L + i_{AL} +i_{CL}),  \notag \\
+	i_{CH} r_b	= \hat{i}_{CH} r_b (s_H + i_{AH} +i_{CH}) + \hat{i}_{CH}(s_L + i_{AL} +i_{CL}),  \notag \\
+	i_{CL} = \hat{i}_{CL} r_b (s_H + i_{AH} +i_{CH}) + \hat{i}_{CL}(s_L + i_{AL} +i_{CL}),  \notag \\
+	{s}_H + {s}_L + {i}_{AH} + {i}_{AL} + {i}_{CH} + {i}_{CL} = 1. \notag
+	\end{cases}
+	\end{gather}
+	\end{frame}
+	
+	\begin{frame}
+	\frametitle{Вычисление долей в общей популяции}
+	\framesubtitle{Общий случай}
+	
+	
+	\begin{equation}
+	\begin{bmatrix}
+	\begin{pmatrix}
+	r_b I_{\left[ H \right]} & 0\\
+	0& I_{\left[ L \right]}
+	\end{pmatrix}
+	+ (1 - r_b)
+	\begin{pmatrix}
+	diag(\hat{x}_H) & 0\\
+	0& diag(\hat{x}_L)
+	\end{pmatrix}
+	\begin{pmatrix}
+	\textbf{1} & \textbf{0}\\
+	\textbf{1} & \textbf{0}
+	\end{pmatrix}
+	\end{bmatrix}
+	\begin{pmatrix}
+	x_H\\
+	x_L
+	\end{pmatrix}
+	=
+	\begin{pmatrix}
+	\hat{x}_H\\
+	\hat{x}_L
+	\end{pmatrix}, \notag
+	\end{equation}
+	
+	$x_H = (s_H \; i_{CH})^\mathrm{T}$, $x_L = (i_{CL})^\mathrm{T}$, \\
+	$\hat{x}_H = (\hat{s}_H \; \hat{i}_{CH})^\mathrm{T}$, $\hat{x}_L = (\hat{i}_{CL})^\mathrm{T}$, \\
+	$s_L = 1 - s_H - i_{CH} - i_{CL}$.\\
+	\end{frame}
+
+	\begin{frame}
+	\frametitle{Результаты}
+\begin{figure}[h]
+	\begin{minipage}[h]{0.49\linewidth}
+		\center{\includegraphics[width=1\linewidth]{im1}}
+	\end{minipage}
+	\hfill
+	\begin{minipage}[h]{0.49\linewidth}
+		\center{\includegraphics[width=1\linewidth]{im3}}
+	\end{minipage}
+	\caption{Динамика популяции до и после переоценки.}
+\end{figure}
+	\end{frame}
+	
+	\begin{frame}
+	\frametitle{Результаты}
+	
+	\begin{figure}[h!]
+		\center{\includegraphics[scale=0.5]{im2}}
+		\caption{Динамика популяции до и после переоценки.}
+	\end{figure}
+	
+	\end{frame}
+
+	\begin{frame}
+\frametitle{Результаты}
+
+\begin{figure}[h]
+	\begin{minipage}[h]{0.49\linewidth}
+		\center{\includegraphics[width=1\linewidth]{im5}}
+	\end{minipage}
+	\hfill
+	\begin{minipage}[h]{0.49\linewidth}
+		\center{\includegraphics[width=1\linewidth]{im4}}
+	\end{minipage}
+	\caption{Распределение населения до и после переоценки, T = 150.}
+\end{figure}
+
+
+
+\end{frame}
+	
+	\begin{frame}
+	\frametitle{Заключение}
+	
+	\begin{itemize}
+		\item<1-> Анализ существующих эпидемиологических моделей распространения инфекции.
+		\item<1-> Математическая модель, представляющая популяцию как совокупность шести различных групп, учитывающая два уровня рискованного поведения и различные стадии инфицирования рассматриваемого населения: острая и хроническая.
+		\item<1-> Оценка соотношения категорий людей в выборке для нерепрезентативных данных, основываясь на их поведении.
+		\item<1-> Вычисление долей в общей популяции для конкретного примера четырех состояний и для общего случая.
+		\item<1-> Программная реализация и численный эксперимент для конкретной выборки.
+	\end{itemize}
+		$\textbf{https://github.com/chris142/BachelorDiplomaHIV}$	
+	\end{frame}		
+	
+	\begin{frame}
+\frametitle{Список литературы}
+
+\begin{thebibliography}{99}
+	
+	\bibitem{link2}
+	Hall H. I., Song R., Rhodes P., Prejean J., An Q., Lee L. M., Karon J., Brookmeyer R., Kaplan E. H., McKenna M. T. \& Janssen R. S. (2008) Estimation of HIV incidence in the United States. JAMA 300, 520–529.
+	
+	\bibitem{link3}
+	Beyrer C., Baral S. D., Collins C., Richardson E. T., Sullivan P. S., Sanchez J., Trapence G., Katabira E., Kazatchkine M., Ryan O., Wirtz A. L. \& Mayer K. H. (2016) The global response to HIV in men who have sex with men. The Lancet 388, 198–206.
+
+	\bibitem{link5}
+	Paul Van de Ven, Pamela Rodden, June Crawford, Susan Kippax: A comparative demographic and sexual profile of older homosexually active men, Journal of Sex Research, 1997.
+	
+	\bibitem{link6}
+	Данные «Объединённой программы ООН по ВИЧ/СПИДу». Декабрь 2006.
+	
+\end{thebibliography}
+
+
+\end{frame}	
+
+	\begin{frame}
+\frametitle{Список литературы}
+
+\begin{thebibliography}{99}
+
+	\bibitem{link20}
+	Zhang X., Zhong L., Romero-Severson E., Alam S. J., Henry C. J., Volz E. M. \& Koopman J. S. (2012) Episodic HIV risk behavior can greatly amplify HIV prevalence and the fraction of transmissions from acute HIV infection. Stat. Commun. Infec. Dis. 4.
+	
+	\bibitem{link21}
+	D. Gromov, I. Bulla, E. O. Romero-Severson, and O. S. Serea. Numerical optimal control for hiv prevention with dynamic budget allocation. Submitted to Mathematical Medicine \& Biology, Online: https://arxiv.org/abs/1611.06728.
+	
+	\bibitem{link22}
+	D. Gromov, I. Bulla, E. O. Romero-Severson. Optimal Resource Allocation for HIV Prevention and Control // September 22, 2017
+	
+	\bibitem{link23}
+	E. O. Romero-Severson, E. Volz, J. S. Koopman, T. Leitner, and E. L. Ion- ides. Dynamic variation in sexual contact rates in a cohort of HIV-negative gay men. American Journal of Epidemiology, 182(3):255–262, 2015.
+	
+\end{thebibliography}
+
+
+\end{frame}	
+
+
+\begin{frame}
+\frametitle{Список литературы}
+
+\begin{thebibliography}{99}
+
+	\bibitem{link11}
+	J. M. Hyman and E. A. Stanley, Using mathematical models to understand the AIDS epidemic, Math. Biosci. 90:415-474 (1988).
+	
+	\bibitem{link12}
+	R. M. Anderson, S. P. Blythe, S. Gupta, and E. Konings. The transmission dynamics of the human immunodeficiency virus type 1 in the male homosexual community in the United Kingdom: the influence of changes in sexual behaviour, Phil. Trans. Roy. Sot. B 325:45-98 (1989).
+	
+	\bibitem{link14}
+	R. M. May and R. M. Anderson, The transmission dynamics of human immunodeficiency
+	virus (HIV), Phil. Trans. Roy. Sot. B 321:565-607 (1989).
+	
+	\bibitem{link15}
+	H. W. Hethcote, A model for HIV transmission and AIDS, in Mathematical Approaches to Problems in Resource Management and Epidemiology, Springer-Verlag, Berlin, 1989, eds. C. Castillo-Chavez, S. A. Levin, C. A. Shoemaker, pp. 164-176.
+	
+
+	
+\end{thebibliography}
+
+
+\end{frame}	
+	
+	
+	\usebackgroundtemplate{\includegraphics[height=\paperheight,width=\paperwidth]{SPbU_bg_titlepage.png}}	
+	\begin{frame}
+
+
+	\end{frame}
+	
+\end{document} 
